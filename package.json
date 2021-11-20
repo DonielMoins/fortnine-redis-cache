@@ -12,7 +12,10 @@
     "ts-ioredis-pool": "^1.0.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.13"
+    "@types/express": "^4.17.13",
+    "@types/ioredis": "^4.28.1",
+    "@types/bluebird": "^3.5.36",
+    "@types/socket.io": "^3.0.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
