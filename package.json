@@ -6,7 +6,6 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "express": "^4.17.1",
-    "http": "^0.0.1-security",
     "ioredis": "^4.28.0",
     "socket.io": "^4.3.2",
     "ts-ioredis-pool": "^1.0.1"
@@ -22,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "./"
+    "url": ""
   },
   "author": "DonielMoins",
   "license": "GPL-3.0"
