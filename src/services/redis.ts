@@ -9,7 +9,12 @@ const eventHandler: RedisEmitter = new RedisEmitter();
 
 // CLI
 class RedisCLIPool extends ioredispool.IORedisPool {
-	[x: string]: any;
+
+	constructor(opts: ioredispool.IORedisPoolOptions) {
+		super(opts)
+	}
+
+	// [x: string]: any;
 
 	setKey(key: string, value: any): Promise<any> {
 		return new Promise(async (resolve, reject) => {
@@ -117,7 +122,14 @@ const CLIPool = new RedisCLIPool(poolOpts);
 //     channels: Array<string> | null = new Array();
 // }
 class SubscriberPool extends ioredispool.IORedisPool {
-	activeSubs: number = 0;
+	private activeSubs: number;
+
+	constructor(opts: ioredispool.IORedisPoolOptions) {
+		super(opts)
+		this.activeSubs = 0;
+	}
+
+
 	// subs: Array<SuberData> = new Array();
 
 	addPSub(sub: string, event: string | Function): void {
