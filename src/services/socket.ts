@@ -3,7 +3,7 @@ import sockio from "socket.io";
 import { Client } from "socket.io/dist/client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-class clientMap extends Map<string, Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>>{
+class clientDB extends Map<string, Client<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>>{
 	private length: number;
 
 	constructor() {
@@ -40,7 +40,7 @@ class clientMap extends Map<string, Client<DefaultEventsMap, DefaultEventsMap, D
 }
 class sock extends sockio.Server {
 
-	private readonly clients: clientMap = new clientMap();
+	private readonly clients: clientDB = new clientDB();
 	constructor() {
 		super()
 		this.on("connect", (socket) => {
