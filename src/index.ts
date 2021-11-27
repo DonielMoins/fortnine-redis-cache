@@ -1,10 +1,12 @@
 import express from "express";
 import http from "http";
-import bluebird from "bluebird";
+import socketSrv from "./services/socket";
 import { router } from "./routes/api";
+
 
 const app = express()
 const webserver = http.createServer(app)
+const sock = new socketSrv.sock(webserver)
 
 app.use("/api/", router)
 

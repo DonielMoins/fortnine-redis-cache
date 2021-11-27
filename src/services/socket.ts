@@ -1,5 +1,5 @@
-import { any, map } from "bluebird";
-import sockio from "socket.io";
+import http from "http";
+import sockio, { ServerOptions } from "socket.io";
 import { Client } from "socket.io/dist/client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
@@ -41,8 +41,8 @@ class clientDB extends Map<string, Client<DefaultEventsMap, DefaultEventsMap, De
 class sock extends sockio.Server {
 
 	private readonly clients: clientDB = new clientDB();
-	constructor() {
-		super()
+	constructor(srv?: http.Server | number, opts?: Partial<ServerOptions>) {
+		super(srv, opts)
 		this.on("connect", (socket) => {
 			this.clients.addClient(socket.id, socket.client);
 		})
@@ -52,4 +52,4 @@ class sock extends sockio.Server {
 	}
 }
 
-export { sock }
+export default { sock }

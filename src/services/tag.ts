@@ -1,5 +1,3 @@
-import { filter } from "bluebird";
-
 enum RedisTagTypes {
 	SPECIFIC
 }
@@ -58,8 +56,7 @@ class service {
 		return invertedMap.get(client)
 	}
 
-	getTagKeys()
-
-
+	getTagKeys(): void {
+	}
 }
 

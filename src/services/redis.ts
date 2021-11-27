@@ -1,6 +1,5 @@
-import ioredispool from "ts-ioredis-pool";
+import { IORedisPool, IORedisPoolOptions } from "ts-ioredis-pool";
 import IORedis from "ioredis";
-import bluebird from "bluebird";
 import EventEmitter from "events";
 
 class RedisEmitter extends EventEmitter { };
@@ -8,9 +7,9 @@ class RedisEmitter extends EventEmitter { };
 const eventHandler: RedisEmitter = new RedisEmitter();
 
 // CLI
-class RedisCLIPool extends ioredispool.IORedisPool {
+class RedisCLIPool extends IORedisPool {
 
-	constructor(opts: ioredispool.IORedisPoolOptions) {
+	constructor(opts: IORedisPoolOptions) {
 		super(opts)
 	}
 
@@ -88,11 +87,9 @@ class RedisCLIPool extends ioredispool.IORedisPool {
 			}
 		});
 	}
-
-
 }
 
-const poolOpts = ioredispool.IORedisPoolOptions
+const poolOpts = IORedisPoolOptions
 	.fromUrl((process.env.REDIS_URL || "redis://127.0.0.1") as string)
 	// This accepts the RedisOptions class from ioredis as an argument
 	// https://github.com/luin/ioredis/blob/master/lib/redis/RedisOptions.ts
@@ -121,17 +118,15 @@ const CLIPool = new RedisCLIPool(poolOpts);
 //     subscribedTo: Array<string> | null = new Array();
 //     channels: Array<string> | null = new Array();
 // }
-class SubscriberPool extends ioredispool.IORedisPool {
+class SubscriberPool extends IORedisPool {
 	private activeSubs: number;
 
-	constructor(opts: ioredispool.IORedisPoolOptions) {
+	constructor(opts: IORedisPoolOptions) {
 		super(opts)
 		this.activeSubs = 0;
 	}
 
-
 	// subs: Array<SuberData> = new Array();
-
 	addPSub(sub: string, event: string | Function): void {
 		var client: any;
 		new Promise(() => {
@@ -145,7 +140,6 @@ class SubscriberPool extends ioredispool.IORedisPool {
 									this.release(subscriber).then(() => this.activeSubs--)
 								}
 							})
-
 							// Does adding a listener like this even work??
 							subscriber.on("message", (...args: any[]) => {
 								eventHandler.emit(<string>event, args)
@@ -155,7 +149,6 @@ class SubscriberPool extends ioredispool.IORedisPool {
 								(<Function>event)()
 							})
 						}
-
 					});
 
 
@@ -174,7 +167,6 @@ class SubscriberPool extends ioredispool.IORedisPool {
 									this.release(subscriber).then(() => this.activeSubs--)
 								}
 							})
-
 							// Does adding a listener like this even work??
 							subscriber.on("message", (...args: any[]) => {
 								eventHandler.emit(<string>event, args)
@@ -184,7 +176,6 @@ class SubscriberPool extends ioredispool.IORedisPool {
 								(<Function>event)()
 							})
 						}
-
 					});
 
 
