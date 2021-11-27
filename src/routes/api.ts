@@ -1,5 +1,6 @@
 import express from "express";
 import { CLIPool } from "../services/redis";
+import { srv } from "../services/tag";
 
 var router = express.Router()
 
@@ -35,8 +36,11 @@ router.get("/key/:key", (req: express.Request, res: express.Response) => {
 		console.log(data)
 		res.send(data);
 	})
-
 });
 
+
+router.get("/tag/:tag", (req: express.Request, res: express.Response) => {
+	res.send(srv.getTagKeys(req.params["tag"]))
+})
 
 export { router };

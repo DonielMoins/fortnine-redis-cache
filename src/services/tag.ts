@@ -1,9 +1,10 @@
-enum RedisTagTypes {
-	SPECIFIC
-}
+// enum RedisTagTypes {
+// 	SPECIFIC
+// }
 
 class RedisTag {
 	readonly name: string;
+	debugKey: string = "All";
 
 	// readonly tagType: RedisTagTypes;
 	// priority: number;
@@ -56,7 +57,15 @@ class service {
 		return invertedMap.get(client)
 	}
 
-	getTagKeys(): void {
+	getTagKeys(tag: string): Array<string> {
+		var tagKeys = new Array();
+		this.tags.forEach(_tag => {
+			if (_tag.name == tag) tagKeys.push(_tag.debugKey)
+		});
+		return tagKeys
 	}
 }
 
+var TagServiceInstance = new service([new RedisTag("debug")], null)
+
+export { TagServiceInstance as srv, RedisTag, service }
