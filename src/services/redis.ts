@@ -3,8 +3,6 @@ import IORedis from "ioredis";
 import EventEmitter from "events";
 
 class RedisEmitter extends EventEmitter { };
-// Event to be
-const eventHandler: RedisEmitter = new RedisEmitter();
 
 // CLI
 class RedisCLIPool extends IORedisPool {
@@ -68,7 +66,7 @@ class RedisCLIPool extends IORedisPool {
 		});
 	}
 
-	getKeys(keys: Array<string>): Promise<any> {
+	getKeys(keys: Array<string>): Promise<string[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const client = await this.getConnection()
@@ -89,41 +87,21 @@ class RedisCLIPool extends IORedisPool {
 	}
 }
 
-const poolOpts = IORedisPoolOptions
-	.fromUrl((process.env.REDIS_URL || "redis://127.0.0.1") as string)
-	// This accepts the RedisOptions class from ioredis as an argument
-	// https://github.com/luin/ioredis/blob/master/lib/redis/RedisOptions.ts
-	.withIORedisOptions({
-		maxRetriesPerRequest: Number(process.env.REDIS_POOL_MaxRetriesPerRequest) | 3,
-		autoResubscribe: true
 
-	})
-	// This accepts the Options class from @types/generic-pool as an argument
-	// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/generic-pool/index.d.ts#L36
-	.withPoolOptions({
-		max: Number(process.env.REDIS_POOL_MAX) | 50,
-		min: Number(process.env.REDIS_POOL_MIN) | 0,
-		autostart: true,
-	})
 
 /*
 	NOTE: Do not forget to release all clients if
 	you are going to use any stock functions.
 */
-const CLIPool = new RedisCLIPool(poolOpts);
 
-// Subscriber
-// class SuberData extends Object {
-//     subscriber: typeof IORedis;
-//     subscribedTo: Array<string> | null = new Array();
-//     channels: Array<string> | null = new Array();
-// }
 class SubscriberPool extends IORedisPool {
 	private activeSubs: number;
+	private eventHandler: RedisEmitter;
 
-	constructor(opts: IORedisPoolOptions) {
+	constructor(opts: IORedisPoolOptions, eventHandler: RedisEmitter) {
 		super(opts)
 		this.activeSubs = 0;
+		this.eventHandler = eventHandler
 	}
 
 	// subs: Array<SuberData> = new Array();
@@ -142,7 +120,7 @@ class SubscriberPool extends IORedisPool {
 							})
 							// Does adding a listener like this even work??
 							subscriber.on("message", (...args: any[]) => {
-								eventHandler.emit(<string>event, args)
+								this.eventHandler.emit(<string>event, args)
 							})
 						} else {
 							subscriber.on("message", (...args: any[]) => {
@@ -169,7 +147,7 @@ class SubscriberPool extends IORedisPool {
 							})
 							// Does adding a listener like this even work??
 							subscriber.on("message", (...args: any[]) => {
-								eventHandler.emit(<string>event, args)
+								this.eventHandler.emit(<string>event, args)
 							})
 						} else {
 							subscriber.on("message", (...args: any[]) => {
@@ -177,12 +155,11 @@ class SubscriberPool extends IORedisPool {
 							})
 						}
 					});
-
-
+			//  Does this work??
 		}).finally(() => this.release(<IORedis.Redis>client))
 	}
 }
 
-let SubPool = new SubscriberPool(poolOpts)
 
-export { CLIPool, SubPool, eventHandler as events }
+
+export { RedisCLIPool, SubscriberPool, RedisEmitter }

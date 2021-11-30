@@ -1,0 +1,28 @@
+<%- include('header') -%>
+
+<!-- <%- include('socketRefresherView') -%> -->
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  const socket = io();
+
+  // Client debug socket
+  socket.onAny((event, ...args) => {
+    console.log(`got event: ${event}`);
+    if (args) console.log(`args: ${JSON.stringify(args)}`)
+  });
+</script>
+<% if (tag) { %>
+<script>
+  var tag = "<%=tag%>"
+  socket.on("connect", () => {
+    socket.emit("tag", tag)
+  })
+</script>
+<p> Requesting tag "<%= tag %>" from API
+  <% } else { %>
+<p>Client page loaded!</p>
+<% } %>
+
+<%- include('footer') -%>

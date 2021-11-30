@@ -4,9 +4,11 @@
   "description": "Server that handles redis updates and live webserver updates",
   "main": "index.js",
   "dependencies": {
+    "ejs": "^3.1.6",
     "express": "^4.17.1",
     "ioredis": "^4.28.1",
     "socket.io": "^4.4.0",
+    "socket.io-client": "^4.4.0",
     "ts-ioredis-pool": "^1.0.1"
   },
   "devDependencies": {
@@ -31,7 +33,7 @@
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon --exec ts-node src/index.ts",
     "lite": "lite-server",
     "start": "concurrently \"npm run tsc:w\" \"npm run lite\" "
   },

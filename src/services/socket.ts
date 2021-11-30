@@ -41,7 +41,7 @@ class clientDB extends Map<string, Client<DefaultEventsMap, DefaultEventsMap, De
 class sock extends sockio.Server {
 
 	private readonly clients: clientDB = new clientDB();
-	constructor(srv?: http.Server | number, opts?: Partial<ServerOptions>) {
+	constructor(srv?: http.Server | number | undefined, opts?: Partial<ServerOptions> | undefined) {
 		super(srv, opts)
 		this.on("connect", (socket) => {
 			this.clients.addClient(socket.id, socket.client);
@@ -52,4 +52,4 @@ class sock extends sockio.Server {
 	}
 }
 
-export default { sock }
+export default sock
