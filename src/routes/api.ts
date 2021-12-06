@@ -1,4 +1,5 @@
 import express from "express";
+import { RedisTag } from "../services/tag";
 import { RedCLIPool as CLIPool, TagService as srv } from "../shared";
 
 var router = express.Router()
@@ -39,7 +40,13 @@ router.get("/key/:key", (req: express.Request, res: express.Response) => {
 
 
 router.get("/tag/:tag", (req: express.Request, res: express.Response) => {
-    res.send(srv.getTagKeys(req.params["tag"]))
+    var redtag = srv.getTag(req.params["tag"])
+    if (redtag) {
+        res.send(srv.fetchAllTagRedis(redtag, CLIPool))
+    } else {
+        res.sendStatus(404)
+    }
+
 })
 
 export { router };

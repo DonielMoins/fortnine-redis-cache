@@ -63,26 +63,51 @@ class service {
 
 	getTagKeys(tag: string): string[] {
 		var tagKeys = new Array();
-		this.tags.forEach(_tag => {
-			if (_tag.name == tag) return _tag.keys
-		});
+		for (const _tag in this.tags) {
+			if (Object.prototype.hasOwnProperty.call(this.tags, _tag)) {
+				const _tagname = this.tags[_tag].name;
+				if (_tagname == tag) {
+					return this.tags[_tag].keys
+				}
+
+			}
+		}
 		return tagKeys
+	}
+	getTag(tagName: string): RedisTag | undefined {
+		for (const tag in this.tags) {
+			if (Object.prototype.hasOwnProperty.call(this.tags, tag)) {
+				const _tagName = this.tags[tag].name;
+				if (_tagName == tagName) return this.tags[tag]
+			}
+		}
+		return
 	}
 
 	fetchAllTagRedis(tag: RedisTag, cli_pool: RedisCLIPool): Map<string, string> {
-		var res: string[];
+		var keys: string[] = [];
+		var keyValues: string[] = [];
 		if (tag.keys.includes("*")) {
-			cli_pool.getConnection().then(async (cli) => {
+			cli_pool.getConnection().then((cli) => {
 				//  This defo doesnt work # TODO
-				cli.keys("*").then((vals) => { res = vals }).finally(() => { cli_pool.release(cli) })
+				cli.keys("*").then((fetched) => {
+					keys = fetched
+				}).then(() => {
+					cli_pool.release(cli)
+				})
+
+			}).then(() => {
+				cli_pool.getKeyVals(keys).then((vals) => { keyValues = vals })
 			})
+
 		} else {
-			cli_pool.getKeys(tag.keys).then((vals) => { res = vals })
+			keys = tag.keys
+			cli_pool.getKeyVals(keys).then((vals) => { keyValues = vals })
 		}
 		var ret: Map<string, string> = new Map<string, string>();
-		tag.keys.map((key, index) => {
-			ret.set(key, res[index])
-		})
+		for (let i: number = 0; i < keys.length; i++) {
+			ret.set(keys[i], keyValues[i])
+		}
 		return ret;
 
 	}

@@ -66,7 +66,7 @@ class RedisCLIPool extends IORedisPool {
 		});
 	}
 
-	getKeys(keys: Array<string>): Promise<string[]> {
+	getKeyVals(keys: Array<string>): Promise<string[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const client = await this.getConnection()
@@ -105,32 +105,29 @@ class SubscriberPool extends IORedisPool {
 	}
 
 	// subs: Array<SuberData> = new Array();
-	addPSub(sub: string, event: string | Function): void {
+	addPSub(sub: string, event: string | ((args: any[]) => void)): void {
 		var client: any;
-		new Promise(() => {
-			client = this.getConnection()
-				.then(
-					(subscriber) => {
-						if (subscriber) this.activeSubs++
-						if (typeof event == typeof String()) {
-							subscriber.subscribe(sub, (err, _activeChannels) => {
-								if (err) {
-									this.release(subscriber).then(() => this.activeSubs--)
-								}
-							})
-							// Does adding a listener like this even work??
-							subscriber.on("message", (...args: any[]) => {
-								this.eventHandler.emit(<string>event, args)
-							})
-						} else {
-							subscriber.on("message", (...args: any[]) => {
-								(<Function>event)()
-							})
-						}
-					});
+		client = this.getConnection()
+			.then(
+				(subscriber) => {
+					if (subscriber) this.activeSubs++
+					if (typeof event == typeof String()) {
+						subscriber.subscribe(sub, (err, _activeChannels) => {
+							if (err) {
+								this.release(subscriber).then(() => this.activeSubs--)
+							}
+						})
+						// Does adding a listener like this even work??
+						subscriber.on("message", (...args: any[]) => {
+							this.eventHandler.emit(<string>event, args)
+						})
+					} else {
+						subscriber.on("message", <VoidFunction>event)
+					}
+				})
 
 
-		}).finally(() => this.release(<IORedis.Redis>client))
+
 	}
 	addSub(sub: string, event: string | Function): void {
 		var client: any;
