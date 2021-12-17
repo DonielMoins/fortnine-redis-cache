@@ -16,15 +16,23 @@
 <% if (tag) { %>
 <script>
 	var tag = "<%=tag%>"
+
+	function refreshData() {
+		fetch(`http://${window.location.host}/api/tag/${tag.normalize()}`).then((res) => {
+			console.log(res.json())
+
+		})
+	}
+
 	socket.on("connect", () => {
 		socket.emit("tag", tag)
 	})
-
-	fetch(`http://${window.location.host}/api/tag/${tag.normalize()}`).then((res) => {
-		console.log(res.json())
+	socket.on("message", () => {
+		refreshData()
 	})
-</script>
-<p> Requesting tag "<%= tag %>" from API
+	refreshData();
+</script>API
+<p> Requesting tag "<%= tag %>" from
 	<% } else { %>
 <p>Client page loaded!</p>
 <% } %>
