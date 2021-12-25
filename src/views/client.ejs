@@ -18,9 +18,8 @@
 	var tag = "<%=tag%>"
 
 	function refreshData() {
-		fetch(`http://${window.location.host}/api/tag/${tag.normalize()}`).then((res) => {
+		fetch(`${window.location.host}/api/tag/${tag.normalize()}`).then((res) => {
 			console.log(res.json())
-
 		})
 	}
 
@@ -28,7 +27,7 @@
 		socket.emit("tag", tag)
 	})
 	socket.on("message", () => {
-		refreshData()
+		refreshData();
 	})
 	refreshData();
 </script>API

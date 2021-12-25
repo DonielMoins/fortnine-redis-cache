@@ -41,7 +41,7 @@ const RedCLIPool = new RedisCLIPool(poolOpts);
 // YO TF... I MADE IT POSSIBLE TO RUN A FUNCTION ON A SUB BEING TRIGGERED
 // bruh when did i get so big brain...
 
-RedSubPool.addPSub("__keyspace@0__:*", (...args) => {
+RedSubPool.addPSub("__key*__:*", (...args) => {
 	console.log(JSON.stringify(args))
 })
 

@@ -29,6 +29,8 @@ sock.listen(webserver)
 sock.on("connection", (client) => {
 	console.log(`Client '...${client.id.slice(14)}' connected.`)
 	client.on("tag", (data: string) => {
+		// Can we make this more efficient?
+		// Maybe check for tag in some hashmap instead of an array
 		tagDB.getAllTags().then((allTags: Array<RedisTag>) => {
 			if (allTags.some((itag) => { return (itag.name == data) })) {
 				client.join(data)
