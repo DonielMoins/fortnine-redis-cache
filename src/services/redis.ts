@@ -65,21 +65,20 @@ class RedisCLIPool extends IORedisPool {
 			}
 		});
 	}
-
+	//FIXME: Y NO WORK!!
 	getKeyVals(keys: Array<string>): Promise<string[]> {
-		return new Promise(async (resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			try {
-				const client = await this.getConnection()
 				var finalList = new Array<string>();
-				if (client) {
-					for (const key in keys) {
-						if ((typeof key) == (typeof String(" "))) throw new Error("Key value cannot be null!");
-						finalList.push(<string>(await client.get(key)));
-					}
-					// Don't forget to release your connection
-					await this.release(client)
-					resolve(finalList);
-				}
+				this.getConnection().then(cli => {
+					keys.forEach((key, i) => {
+						if (!(key)) throw new Error("Key value cannot be null!");
+						cli.get(key).then(str => { finalList.push(str ? str : "") })
+					})
+
+
+					this.release(cli)
+				}).finally(() => resolve(finalList))
 			} catch (err: any) {
 				reject(err);
 			}

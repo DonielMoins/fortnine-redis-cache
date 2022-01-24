@@ -42,8 +42,11 @@ router.get("/key/:key", (req: express.Request, res: express.Response) => {
 router.get("/tag/:tag", (req: express.Request, res: express.Response) => {
     var redtag = srv.getTag(req.params["tag"])
     if (redtag) {
-        var data = srv.fetchAllTagRedis(redtag, CLIPool)
-        res.send(data)
+        srv.fetchTagMap(redtag, CLIPool).then(data => {
+            console.log(Object.fromEntries(data))
+            res.send(Object.fromEntries(data))
+        })
+
     } else {
         res.sendStatus(404)
     }

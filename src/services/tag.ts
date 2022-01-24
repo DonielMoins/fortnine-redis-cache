@@ -1,8 +1,6 @@
-import { stringify } from "querystring";
 import { RedisCLIPool, RedisEmitter } from "./redis"
 class RedisTag {
 	readonly name: string;
-	// debugKey: string = "All";
 	keys: string[] = [];
 	// readonly tagType: RedisTagTypes;
 	// priority: number;
@@ -84,31 +82,50 @@ class service {
 		return
 	}
 
-	fetchAllTagRedis(tag: RedisTag, cli_pool: RedisCLIPool): Map<string, string> {
-		var keys: string[] = [];
-		var keyValues: string[] = [];
-		if (tag.keys.includes("*")) {
-			cli_pool.getConnection().then((cli) => {
-				//  This defo doesnt work # TODO
-				cli.keys("*").then((fetched) => {
-					keys = fetched
-				}).then(() => {
-					cli_pool.release(cli)
-				})
+	fetchTagMap(tag: RedisTag, cli_pool: RedisCLIPool): Promise<Map<string, string>> {
+		return new Promise((res, rej) => {
+			try {
+				var Keys: string[] = [];
+				var keyValues: string[] = [];
+				var ret: Map<string, string> = new Map<string, string>();
+				// var cursor: string = "0"
+				if (tag.keys.includes("*")) {
+					cli_pool.getConnection().then((cli) => {
 
-			}).then(() => {
-				cli_pool.getKeyVals(keys).then((vals) => { keyValues = vals })
-			})
+						// for some reason scan.then is never fulfilled??
+						// figure that out lol, goodluck future me
 
-		} else {
-			keys = tag.keys
-			cli_pool.getKeyVals(keys).then((vals) => { keyValues = vals })
-		}
-		var ret: Map<string, string> = new Map<string, string>();
-		for (let i: number = 0; i < keys.length; i++) {
-			ret.set(keys[i], keyValues[i])
-		}
-		return ret;
+						// while (cursor !== "-1") {
+						// 	cli.scan(0).then(r => {
+						// 		console.log(r)
+						// 	})
+						// }
+
+						//FIXME: Keys is potentially blocking, figure out how to use redis SCAN ^
+						cli.keys("*").then((keys: string[]) => {
+							console.log(keys)
+							cli_pool.getKeyVals(keys).then((vals) => {
+								console.log(vals)
+								for (let i: number = 0; i < keys.length; i++) {
+									ret.set(keys[i], vals[i] ? vals[i] : "Undefined")
+								}
+								res(ret)
+							})
+						}).finally(() => {
+							cli_pool.release(cli)
+						})
+
+					})
+				} else {
+					Keys = tag.keys
+					cli_pool.getKeyVals(Keys).then((vals) => { keyValues = vals }).then(() => {
+						for (let i: number = 0; i < Keys.length; i++) {
+							ret.set(Keys[i], keyValues[i])
+						}
+					}).finally(() => { res(ret) })
+				}
+			} catch (err) { rej(err); }
+		})
 
 	}
 }

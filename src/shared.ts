@@ -41,9 +41,18 @@ const RedCLIPool = new RedisCLIPool(poolOpts);
 // YO TF... I MADE IT POSSIBLE TO RUN A FUNCTION ON A SUB BEING TRIGGERED
 // bruh when did i get so big brain...
 
-RedSubPool.addPSub("__key*__:*", (...args) => {
-	console.log(JSON.stringify(args))
+
+RedCLIPool.getConnection().then((client) => {
+	client.config("SET", "notify-keyspace-events", "KEA").finally(() => {
+		RedCLIPool.release(client)
+	})
+}).finally(() => {
+	RedSubPool.addPSub("__key*__:*", (...args) => {
+		console.log(JSON.stringify(args))
+	})
 })
+
+
 
 
 // Tag

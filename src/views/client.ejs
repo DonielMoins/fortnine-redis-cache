@@ -3,7 +3,7 @@
 <!-- <%- include('socketRefresherView') -%> -->
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 	const socket = io();
 
@@ -16,11 +16,30 @@
 <% if (tag) { %>
 <script>
 	var tag = "<%=tag%>"
+	console.log("tag is: ", tag)
 
+	//FIXME: Tries to fetch data from "http://127.0.0.1:8080/client/127.0.0.1:8080/api/tag/all"
 	function refreshData() {
-		fetch(`${window.location.host}/api/tag/${tag.normalize()}`).then((res) => {
-			console.log(res.json())
-		})
+		var request = new XMLHttpRequest();
+		var location = `${window.location.hostname}${window.location.port ? ":" + window.location.port : ""}/api/tag/${tag.normalize()}`
+		console.log(location)
+
+		request.open('GET', location)
+		request.send();
+		request.onload = () => {
+			res = null;
+			try {
+				res = JSON.parse(request.response)
+			} catch (err) {
+				console.log(err);
+			}
+
+		}
+		// fetch().then((res) => {
+		// 	console.log(res.json())
+		// }, reason => {
+		// 	console.log("Error on refreshData():\n", reason)
+		// })
 	}
 
 	socket.on("connect", () => {
